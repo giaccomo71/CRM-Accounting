@@ -143,6 +143,23 @@ async function saveContact(event) {
   }
 }
 
+async function initApp() {
+  // Ak chceš, aby to klientovi hneď nabehlo, doplň tvoje údaje sem:
+  const defaultUrl = "https://sqkimiedvwtkhcpebvjy.supabase.co";
+  const defaultKey =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNxa2ltaWVkdnd0a2hjcGVidmp5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczNjU2NTgsImV4cCI6MjA5Mjk0MTY1OH0.twerJU_wEBqD-kr-nt9LwyoE6lCVeuzE4PTc4_WZ2bY";
+
+  const url = localStorage.getItem("fincrm_sb_url") || defaultUrl;
+  const key = localStorage.getItem("fincrm_sb_key") || defaultKey;
+
+  if (url && key) {
+    document.getElementById("setup-screen").style.display = "none";
+    dbClient = window.supabase.createClient(url, key);
+    await loadData();
+    showPage("dashboard");
+  }
+}
+
 // ========== RENDERING ==========
 function renderAll() {
   renderDashboard();
