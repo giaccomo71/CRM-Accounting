@@ -250,6 +250,27 @@ function fmt(n) {
   );
 }
 
+const modal = document.getElementById("mojModal");
+const otvorBtn = document.getElementById("otvorBtn");
+const zatvorBtn = document.getElementById("zatvorBtn");
+
+// Otvorenie okna po kliknutí na tlačidlo
+otvorBtn.onclick = function () {
+  modal.style.display = "block";
+};
+
+// Zatvorenie okna po kliknutí na krížik
+zatvorBtn.onclick = function () {
+  modal.style.display = "none";
+};
+
+// Zatvorenie okna po kliknutí kdekoľvek mimo okna
+window.onclick = function (event) {
+  if (event.target == modal) {
+    modal.style.display = "none";
+  }
+};
+
 // MODAL OVLÁDANIE (Používa tvoju triedu .open)
 function openModal(id) {
   document.getElementById(id)?.classList.add("open");

@@ -19,7 +19,7 @@
 }
 
 body {
-  font-family: 'Outfit', sans-serif;
+  font-family: "Outfit", sans-serif;
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
@@ -46,7 +46,7 @@ body {
 }
 
 .logo-text {
-  font-family: 'DM Serif Display', serif;
+  font-family: "DM Serif Display", serif;
   font-size: 26px;
   color: var(--accent);
   letter-spacing: -0.5px;
@@ -58,7 +58,7 @@ body {
   letter-spacing: 2px;
   text-transform: uppercase;
   margin-top: 2px;
-  font-family: 'DM Mono', monospace;
+  font-family: "DM Mono", monospace;
 }
 
 .nav {
@@ -76,7 +76,7 @@ body {
   text-transform: uppercase;
   color: var(--muted);
   padding: 8px 12px 4px;
-  font-family: 'DM Mono', monospace;
+  font-family: "DM Mono", monospace;
 }
 
 .nav-item {
@@ -105,7 +105,7 @@ body {
 }
 
 .nav-item.active::before {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
   top: 50%;
@@ -127,7 +127,7 @@ body {
   border-top: 1px solid var(--border);
   font-size: 12px;
   color: var(--muted);
-  font-family: 'DM Mono', monospace;
+  font-family: "DM Mono", monospace;
 }
 
 /* MAIN */
@@ -152,7 +152,7 @@ body {
 }
 
 .page-title {
-  font-family: 'DM Serif Display', serif;
+  font-family: "DM Serif Display", serif;
   font-size: 22px;
   color: var(--text);
 }
@@ -167,7 +167,7 @@ body {
   padding: 8px 18px;
   border-radius: 8px;
   border: none;
-  font-family: 'Outfit', sans-serif;
+  font-family: "Outfit", sans-serif;
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
@@ -251,7 +251,7 @@ body {
 }
 
 .stat-card::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   right: 0;
@@ -283,12 +283,12 @@ body {
   letter-spacing: 1.5px;
   text-transform: uppercase;
   color: var(--muted);
-  font-family: 'DM Mono', monospace;
+  font-family: "DM Mono", monospace;
   margin-bottom: 8px;
 }
 
 .stat-value {
-  font-family: 'DM Serif Display', serif;
+  font-family: "DM Serif Display", serif;
   font-size: 28px;
   color: var(--text);
   margin-bottom: 4px;
@@ -338,7 +338,7 @@ th {
   letter-spacing: 1.5px;
   text-transform: uppercase;
   color: var(--muted);
-  font-family: 'DM Mono', monospace;
+  font-family: "DM Mono", monospace;
   font-weight: 500;
   border-bottom: 1px solid var(--border);
   background: var(--surface2);
@@ -365,7 +365,7 @@ tr:hover td {
   border-radius: 20px;
   font-size: 11px;
   font-weight: 500;
-  font-family: 'DM Mono', monospace;
+  font-family: "DM Mono", monospace;
 }
 
 .badge-paid {
@@ -409,7 +409,7 @@ tr:hover td {
 }
 
 .amount {
-  font-family: 'DM Mono', monospace;
+  font-family: "DM Mono", monospace;
   font-weight: 500;
 }
 
@@ -453,7 +453,7 @@ tr:hover td {
 }
 
 .modal-title {
-  font-family: 'DM Serif Display', serif;
+  font-family: "DM Serif Display", serif;
   font-size: 20px;
   margin-bottom: 20px;
   color: var(--accent);
@@ -478,7 +478,7 @@ tr:hover td {
 label {
   font-size: 12px;
   color: var(--muted);
-  font-family: 'DM Mono', monospace;
+  font-family: "DM Mono", monospace;
   letter-spacing: 0.5px;
 }
 
@@ -490,7 +490,7 @@ textarea {
   border-radius: 8px;
   padding: 10px 12px;
   color: var(--text);
-  font-family: 'Outfit', sans-serif;
+  font-family: "Outfit", sans-serif;
   font-size: 14px;
   outline: none;
   transition: border-color 0.15s;
@@ -560,7 +560,7 @@ select option {
 .bar-label {
   font-size: 10px;
   color: var(--muted);
-  font-family: 'DM Mono', monospace;
+  font-family: "DM Mono", monospace;
   text-align: center;
 }
 
@@ -703,7 +703,7 @@ select option {
   color: #111;
   padding: 40px;
   border-radius: 8px;
-  font-family: 'Outfit', sans-serif;
+  font-family: "Outfit", sans-serif;
   width: 100%;
   max-width: 680px;
   margin: 0 auto;
@@ -734,7 +734,7 @@ select option {
 }
 
 .setup-logo {
-  font-family: 'DM Serif Display', serif;
+  font-family: "DM Serif Display", serif;
   font-size: 36px;
   color: var(--accent);
   margin-bottom: 6px;
@@ -743,7 +743,7 @@ select option {
 .setup-sub {
   font-size: 12px;
   color: var(--muted);
-  font-family: 'DM Mono', monospace;
+  font-family: "DM Mono", monospace;
   letter-spacing: 2px;
   text-transform: uppercase;
   margin-bottom: 28px;
@@ -769,7 +769,7 @@ select option {
   color: var(--accent);
   padding: 2px 6px;
   border-radius: 4px;
-  font-family: 'DM Mono', monospace;
+  font-family: "DM Mono", monospace;
   font-size: 12px;
 }
 
@@ -784,7 +784,7 @@ select option {
 .setup-fields label {
   font-size: 11px;
   color: var(--muted);
-  font-family: 'DM Mono', monospace;
+  font-family: "DM Mono", monospace;
 }
 
 .setup-fields input {
@@ -842,13 +842,13 @@ select option {
 .loading-text {
   font-size: 14px;
   color: var(--muted);
-  font-family: 'DM Mono', monospace;
+  font-family: "DM Mono", monospace;
 }
 
 .sync-badge {
   font-size: 11px;
   color: var(--accent3);
-  font-family: 'DM Mono', monospace;
+  font-family: "DM Mono", monospace;
   display: flex;
   align-items: center;
   gap: 5px;
@@ -919,4 +919,65 @@ select option {
   border-radius: 4px;
   background: var(--accent3);
   transition: width 0.5s ease;
+}
+
+/* Štýl pre hlavné tlačidlo */
+.tlacidlo-navod {
+  padding: 12px 24px;
+  font-size: 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.tlacidlo-navod:hover {
+  background-color: #0056b3;
+}
+
+/* Pozadie vyskakovacieho okna (skryté v základe) */
+.modal-pozadie {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(3px);
+}
+
+/* Samotné vyskakovacie okno */
+.modal-obsah {
+  background-color: white;
+  margin: 10% auto;
+  padding: 30px;
+  border-radius: 10px;
+  width: 50%;
+  max-width: 500px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  position: relative;
+  font-family: Arial, sans-serif;
+}
+
+/* Tlačidlo na zatvorenie (X) */
+.zatvorit-modal {
+  color: #aaa;
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.zatvorit-modal:hover {
+  color: #333;
+}
+
+/* Štýlovanie zoznamu v návode */
+.modal-obsah ol {
+  padding-left: 20px;
+  line-height: 1.6;
 }
