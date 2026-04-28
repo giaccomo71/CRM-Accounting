@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="sk">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FinCRM — Účtovný systém</title>
+  <link rel="icon" href="data:,">
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://unpkg.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+
+  <!-- SETUP SCREEN -->
+  <div class="setup-screen" id="setup-screen">
+    <div class="setup-box">
+      <div class="setup-logo">FinCRM</div>
+      <div class="setup-sub">Pripojenie k Supabase</div>
+
+      <div class="setup-step">
+        <strong>1.</strong> Choď na <strong>supabase.com</strong>, vytvor bezplatný projekt.<br>
+        <strong>2.</strong> V SQL Editore spusti skript z priloženého súboru <code>fincrm-setup.sql</code>.<br>
+        <strong>3.</strong> Choď do <strong>Project Settings → API</strong> a skopíruj údaje nižšie.
+      </div>
+
+      <div class="setup-fields">
+        <div>
+          <label>Project URL</label>
+          <input type="text" id="sb-url" placeholder="https://xyzxyz.supabase.co">
+        </div>
+        <div>
+          <label>Anon Public Key</label>
+          <input type="text" id="sb-key" placeholder="eyJhbGciOiJIUzI1NiIs...">
+        </div>
+      </div>
+
+      <button class="btn btn-primary" style="width:100%;padding:12px" onclick="connectSupabase()">
+        Pripojiť databázu →
+      </button>
+
+      <div id="setup-status"
+        style="margin-top:12px;font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;min-height:18px"></div>
+    </div>
+  </div>
+
+  <!-- LOADING OVERLAY -->
+  <div class="loading-overlay" id="loading-overlay">
+    <div class="spinner"></div>
+    <div class="loading-text" id="loading-text">Načítavam dáta...</div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-text">FinCRM</div>
+      <div class="logo-sub">Účtovný systém</div>
+    </div>
+    <nav class="nav">
+      <div class="nav-section">
+        <div class="nav-label">Prehľad</div>
+        <div class="nav-item active" onclick="showPage('dashboard')">
+          <span class="nav-icon">📊</span> Dashboard
+        </div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">Správa</div>
+        <div class="nav-item" onclick="showPage('contacts')">
+          <span class="nav-icon">👥</span> Kontakty & Firmy
+        </div>
+        <div class="nav-item" onclick="showPage('invoices')">
+          <span class="nav-icon">🧾</span> Faktúry
+        </div>
+        <div class="nav-item" onclick="showPage('transactions')">
+          <span class="nav-icon">💰</span> Príjmy & Výdavky
+        </div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">Analýzy</div>
+        <div class="nav-item" onclick="showPage('reports')">
+          <span class="nav-icon">📈</span> Prehľady
+        </div>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      v1.0 · 2025
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <div class="page-title" id="page-title">Dashboard</div>
+      <div class="topbar-actions" id="topbar-actions"></div>
+      <div id="sync-status" class="sync-badge" style="margin-left:12px">● Online</div>
+    </div>
+
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <div class="page active" id="page-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card yellow">
+            <div class="stat-label">Celkové príjmy</div>
+            <div class="stat-value" id="stat-income">0 €</div>
+            <div class="stat-change">Tento rok</div>
+          </div>
+          <div class="stat-card red">
+            <div class="stat-label">Celkové výdavky</div>
+            <div class="stat-value" id="stat-expenses">0 €</div>
+            <div class="stat-change neg">Tento rok</div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-label">Zisk</div>
+            <div class="stat-value" id="stat-profit">0 €</div>
+            <div class="stat-change" id="stat-profit-pct"></div>
+          </div>
+          <div class="stat-card blue">
+            <div class="stat-label">Nezaplatené faktúry</div>
+            <div class="stat-value" id="stat-unpaid">0 €</div>
+            <div class="stat-change">Čaká na platbu</div>
+          </div>
+        </div>
+
+        <div class="dash-grid">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Príjmy vs Výdavky</span>
+              <span class="badge badge-paid">2025</span>
+            </div>
+            <div class="chart-container">
+              <div class="bar-chart" id="dash-chart"></div>
+            </div>
+            <div class="chart-legend">
+              <div class="legend-item">
+                <div class="legend-dot" style="background:var(--accent3)"></div>Príjmy
+              </div>
+              <div class="legend-item">
+                <div class="legend-dot" style="background:var(--danger)"></div>Výdavky
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Posledné faktúry</span>
+              <button class="btn btn-ghost" onclick="showPage('invoices')"
+                style="font-size:12px;padding:5px 12px">Všetky</button>
+            </div>
+            <div id="dash-invoices"></div>
+          </div>
+        </div>
+
+        <div class="dash-grid">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Posledné transakcie</span>
+              <button class="btn btn-ghost" onclick="showPage('transactions')"
+                style="font-size:12px;padding:5px 12px">Všetky</button>
+            </div>
+            <div id="dash-transactions"></div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Top klienti</span>
+            </div>
+            <div id="dash-clients"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONTACTS -->
+      <div class="page" id="page-contacts">
+        <div class="search-bar">
+          <span class="search-icon">🔍</span>
+          <input type="text" placeholder="Hľadať kontakt alebo firmu..." oninput="filterContacts(this.value)">
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Všetky kontakty</span>
+            <span id="contacts-count" class="badge badge-client">0</span>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Meno / Firma</th>
+                <th>Email</th>
+                <th>Telefón</th>
+                <th>Typ</th>
+                <th>IČO / DIČ</th>
+                <th>Akcie</th>
+              </tr>
+            </thead>
+            <tbody id="contacts-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- INVOICES -->
+      <div class="page" id="page-invoices">
+        <div class="search-bar">
+          <span class="search-icon">🔍</span>
+          <input type="text" placeholder="Hľadať faktúru..." oninput="filterInvoices(this.value)">
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Faktúry a ponuky</span>
+            <div style="display:flex;gap:8px;align-items:center">
+              <span id="invoices-count" class="badge badge-pending">0</span>
+            </div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Č. faktúry</th>
+                <th>Klient</th>
+                <th>Dátum</th>
+                <th>Splatnosť</th>
+                <th>Suma</th>
+                <th>Stav</th>
+                <th>Akcie</th>
+              </tr>
+            </thead>
+            <tbody id="invoices-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TRANSACTIONS -->
+      <div class="page" id="page-transactions">
+        <div class="search-bar">
+          <span class="search-icon">🔍</span>
+          <input type="text" placeholder="Hľadať transakciu..." oninput="filterTransactions(this.value)">
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Príjmy & Výdavky</span>
+            <span id="transactions-count" class="badge badge-income">0</span>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Dátum</th>
+                <th>Popis</th>
+                <th>Kategória</th>
+                <th>Kontakt</th>
+                <th>Suma</th>
+                <th>Typ</th>
+                <th>Akcie</th>
+              </tr>
+            </thead>
+            <tbody id="transactions-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- REPORTS -->
+      <div class="page" id="page-reports">
+        <div class="stats-grid">
+          <div class="stat-card yellow">
+            <div class="stat-label">Celkový obrat</div>
+            <div class="stat-value" id="rep-income">0 €</div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width:100%;background:var(--accent)" id="rep-income-bar"></div>
+            </div>
+          </div>
+          <div class="stat-card red">
+            <div class="stat-label">Celkové náklady</div>
+            <div class="stat-value" id="rep-expenses">0 €</div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width:0%;background:var(--danger)" id="rep-expense-bar"></div>
+            </div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-label">Čistý zisk</div>
+            <div class="stat-value" id="rep-profit">0 €</div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width:0%" id="rep-profit-bar"></div>
+            </div>
+          </div>
+          <div class="stat-card blue">
+            <div class="stat-label">Miera zisku</div>
+            <div class="stat-value" id="rep-margin">0%</div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width:0%;background:var(--accent2)" id="rep-margin-bar"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dash-grid">
+          <div class="card">
+            <div class="card-header"><span class="card-title">Mesačný vývoj</span></div>
+            <div class="chart-container">
+              <div class="bar-chart" id="rep-chart"></div>
+            </div>
+            <div class="chart-legend">
+              <div class="legend-item">
+                <div class="legend-dot" style="background:var(--accent3)"></div>Príjmy
+              </div>
+              <div class="legend-item">
+                <div class="legend-dot" style="background:var(--danger)"></div>Výdavky
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><span class="card-title">Výdavky podľa kategórie</span></div>
+            <div id="category-breakdown" style="padding:16px 24px"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Faktúry podľa stavu</span>
+          </div>
+          <div id="invoice-status-report" style="padding:20px 24px;display:flex;gap:20px;flex-wrap:wrap"></div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- MODAL: CONTACT -->
+  <div class="modal-overlay" id="modal-contact">
+    <div class="modal">
+      <div class="modal-title" id="modal-contact-title">Nový kontakt</div>
+      <div class="form-grid">
+        <div class="form-group full">
+          <label>Meno / Názov firmy *</label>
+          <input type="text" id="c-name" placeholder="Ján Novák / ABC s.r.o.">
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="c-email" placeholder="jan@firma.sk">
+        </div>
+        <div class="form-group">
+          <label>Telefón</label>
+          <input type="text" id="c-phone" placeholder="+421 900 000 000">
+        </div>
+        <div class="form-group">
+          <label>Typ</label>
+          <select id="c-type">
+            <option value="Klient">Klient</option>
+            <option value="Dodávateľ">Dodávateľ</option>
+            <option value="Partner">Partner</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>IČO</label>
+          <input type="text" id="c-ico" placeholder="12345678">
+        </div>
+        <div class="form-group">
+          <label>DIČ</label>
+          <input type="text" id="c-dic" placeholder="SK2000000000">
+        </div>
+        <div class="form-group full">
+          <label>Adresa</label>
+          <input type="text" id="c-address" placeholder="Hlavná 1, 010 01 Žilina">
+        </div>
+        <div class="form-group full">
+          <label>Poznámka</label>
+          <textarea id="c-note" rows="2" placeholder="Doplnkové informácie..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal('modal-contact')">Zrušiť</button>
+        <button class="btn btn-primary" onclick="saveContact()">Uložiť</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: INVOICE -->
+  <div class="modal-overlay" id="modal-invoice">
+    <div class="modal">
+      <div class="modal-title" id="modal-invoice-title">Nová faktúra</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Číslo faktúry *</label>
+          <input type="text" id="i-number" placeholder="FAK-2025-001">
+        </div>
+        <div class="form-group">
+          <label>Typ</label>
+          <select id="i-type">
+            <option value="Faktúra">Faktúra</option>
+            <option value="Ponuka">Ponuka</option>
+            <option value="Zálohová faktúra">Zálohová faktúra</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label>Klient *</label>
+          <select id="i-client"></select>
+        </div>
+        <div class="form-group">
+          <label>Dátum vystavenia</label>
+          <input type="date" id="i-date">
+        </div>
+        <div class="form-group">
+          <label>Dátum splatnosti</label>
+          <input type="date" id="i-due">
+        </div>
+        <div class="form-group full">
+          <label>Popis / Položky</label>
+          <textarea id="i-items" rows="3" placeholder="Vývoj webovej stránky, 40 hodín × 50 €"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Suma bez DPH (€)</label>
+          <input type="number" id="i-amount" placeholder="0.00" oninput="calcVat()">
+        </div>
+        <div class="form-group">
+          <label>DPH (%)</label>
+          <select id="i-vat" onchange="calcVat()">
+            <option value="0">0%</option>
+            <option value="10">10%</option>
+            <option value="20" selected>20%</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Suma s DPH (€)</label>
+          <input type="number" id="i-total" placeholder="0.00" readonly style="opacity:0.7">
+        </div>
+        <div class="form-group">
+          <label>Stav</label>
+          <select id="i-status">
+            <option value="Návrh">Návrh</option>
+            <option value="Odoslaná">Odoslaná</option>
+            <option value="Zaplatená">Zaplatená</option>
+            <option value="Po splatnosti">Po splatnosti</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label>Poznámka</label>
+          <textarea id="i-note" rows="2" placeholder="Platobné podmienky, bankový účet..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal('modal-invoice')">Zrušiť</button>
+        <button class="btn btn-primary" onclick="saveInvoice()">Uložiť</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: TRANSACTION -->
+  <div class="modal-overlay" id="modal-transaction">
+    <div class="modal">
+      <div class="modal-title" id="modal-transaction-title">Nová transakcia</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Dátum *</label>
+          <input type="date" id="t-date">
+        </div>
+        <div class="form-group">
+          <label>Typ</label>
+          <select id="t-type">
+            <option value="Príjem">Príjem</option>
+            <option value="Výdavok">Výdavok</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label>Popis *</label>
+          <input type="text" id="t-desc" placeholder="Platba za faktúru, nákup materiálu...">
+        </div>
+        <div class="form-group">
+          <label>Kategória</label>
+          <select id="t-category">
+            <option>Tržby</option>
+            <option>Služby</option>
+            <option>Prenájem</option>
+            <option>Mzdy</option>
+            <option>Marketing</option>
+            <option>IT & Software</option>
+            <option>Cestovné</option>
+            <option>Kancelária</option>
+            <option>Dane</option>
+            <option>Iné</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Suma (€) *</label>
+          <input type="number" id="t-amount" placeholder="0.00">
+        </div>
+        <div class="form-group full">
+          <label>Kontakt</label>
+          <select id="t-contact">
+            <option value="">— bez kontaktu —</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label>Poznámka</label>
+          <textarea id="t-note" rows="2" placeholder="Doplnkové informácie..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal('modal-transaction')">Zrušiť</button>
+        <button class="btn btn-primary" onclick="saveTransaction()">Uložiť</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONFIRM DELETE -->
+  <div class="confirm-overlay" id="confirm-overlay">
+    <div class="confirm-box">
+      <div class="confirm-icon">🗑️</div>
+      <div style="font-size:17px;font-weight:600;margin-bottom:8px">Vymazať záznam?</div>
+      <div class="confirm-text">Táto akcia je nevratná. Záznam bude trvalo odstránený.</div>
+      <div style="display:flex;gap:10px;justify-content:center">
+        <button class="btn btn-ghost" onclick="closeConfirm()">Zrušiť</button>
+        <button class="btn btn-danger" onclick="confirmDelete()">Vymazať</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <script src="/script.js"></script>
+</body>
+
+</html>
